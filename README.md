@@ -7,6 +7,8 @@ Pure Markdown. Zero dependencies. No network. No database, no vector store.
 
 It ships as a **skill**: hand `SKILL.md` plus one folder to any model, and it runs. Not a library, not a service, not a framework plugin.
 
+> **Heads-up on the sticker index.** Adding images and running `-c stickers` rewrites `表情包/索引.md`, and it invalidates every count and placeholder name quoted in these docs. After rebuilding, either have the model sync the docs or correct them by hand — this is the one thing that goes stale on its own, without anyone editing a file.
+
 ---
 
 ## Why this exists
@@ -138,14 +140,14 @@ The usual failure is that memory is injected wholesale and grows without bound. 
 
 | Bound | Rule |
 | --- | --- |
-| Facts injected | At most 120, newest first. Past that it says so rather than silently truncating |
+| Facts injected | At most 120, the most recent ones. Past that it says so rather than silently truncating |
 | Commitments injected | Open ones only. Closed ones stay on disk, out of context |
-| Journal injected | Last 3 days only, never the whole file |
+| Journal injected | Last 3 days by default, never the whole file (`--days` changes the window) |
 | Journal growth | Max 3 entries per day, ~100 bytes each |
 
 The result is roughly **6–15 KB of injected context per turn, flat**. The size is set by how long your `SOUL.md` is, not by how long you've been talking — month one and month twelve cost the same. A year of daily use adds a bounded journal on disk, not a growing prompt.
 
-Old facts are never deleted — they move to `## Superseded` with `~until` / `~by` cross-links. Deleting a conclusion also throws away *why it changed*, and next month you'll re-derive it wrong.
+Old facts are never deleted — they move to `## 已作废` with `~until` / `~by` cross-links. Deleting a conclusion also throws away *why it changed*, and next month you'll re-derive it wrong.
 
 ---
 
@@ -207,7 +209,7 @@ The strictest case — plain text *and* no image support — still has one defin
 [表情包:撒娇卖萌-蹭手要摸头]
 ```
 
-Placeholders are derived from the filename, not an index number. Numbers shift the moment you add an image (the list is sorted by name), so a number written into yesterday's transcript points at a different picture today. A name always points at the same one.
+Placeholders are derived from the filename, not an index number. Numbers shift the moment you add an image (the list is sorted by name), so a number written into yesterday's transcript points at a different picture today. A name always points at the same one. The two names above come from the shipped set — run `-c stickers` for the ones you actually have.
 
 Plus a priority rule: **the host's built-in "helpful assistant" register yields to the persona, but tool protocols, permissions, structured output, and safety rules do not.** On conflict, the content follows the rules and the wording follows the character. That includes execution footers — elapsed time, step counts, "nothing was written to memory" — which are a host habit, not a protocol.
 
@@ -215,8 +217,9 @@ Plus a priority rule: **the host's built-in "helpful assistant" register yields 
 
 ## Quick start
 
+Clone or download this repo, then:
+
 ```bash
-git clone https://github.com/<you>/foursheets
 cd foursheets
 
 python persona.py -c list            # list personas
@@ -294,7 +297,7 @@ foursheets/
 ├── 记忆库/
 │   ├── 000-模板/         Copy this to create a persona
 │   └── 001-大肥鱼/       Example persona
-└── 表情包/               6 zero-byte placeholder images + 索引.md
+└── 表情包/               image set + 索引.md, rebuilt by -c stickers
 ```
 
 The six specs are read **once, at startup**, then live in context as rules. They are ~40 KB of Chinese prose; if that's too much for your budget, the four behaviour specs can be merged into two.
@@ -311,9 +314,9 @@ The six specs are read **once, at startup**, then live in context as rules. They
 
 ## About the stickers
 
-The six `.jpg` files are **zero-byte placeholders**. They exist to demonstrate the naming format (`emotion-meaning.jpg`) and index generation. Sending them will fail.
+The `.jpg` files shipped in the repository are **zero-byte placeholders**. They exist to demonstrate the naming format (`emotion-meaning.jpg`) and index generation; sending one will fail.
 
-Swap in your own, keep the `emotion-meaning` naming, rerun `-c stickers`. **Don't commit images you don't have the rights to.**
+Swap in your own, keep the naming, and rerun `-c stickers` to rebuild the index. **Don't commit images you don't have the rights to** — the placeholders are there so the repo can stay free of borrowed art.
 
 ---
 
