@@ -196,7 +196,7 @@ POLICY_TEXT = {
 }
 
 
-def do_load(pdir, st, limit):
+def do_load(pdir, st, limit, days=3):
     entries = read_memory(pdir)
     facts = [e for e in entries if e["section"] == SEC_FACT]
     commits = [e for e in entries if e["section"] == SEC_COMMIT
@@ -216,7 +216,6 @@ def do_load(pdir, st, limit):
     out += ["", f"# 长期记忆 · 未了结的约定（{len(commits)} 条）"]
     out += [fmt_entry(e) for e in commits] or ["（空）"]
 
-    days = 3
     since = (date.today() - timedelta(days=days)).isoformat()
     recent = []
     for p in sorted((pdir / "journal").glob("*.md")):
@@ -548,7 +547,7 @@ def main():
     st = load_state(pdir)
 
     if a.cmd == "load":
-        do_load(pdir, st, a.limit)
+        do_load(pdir, st, a.limit, a.days)
     elif a.cmd == "brief":
         print(render_brief(pdir, st, a.days))
         save_state(pdir, st)
